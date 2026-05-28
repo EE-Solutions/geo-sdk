@@ -8,11 +8,11 @@ import { DaoSpaceFactoryAbi } from '../abis/index.js';
  */
 export const RATIO_BASE = BigInt(10e6);
 
-/** Minimum voting duration in seconds (2 days) */
-export const MINIMUM_VOTING_DURATION = BigInt(2 * 24 * 60 * 60);
+/** Minimum voting duration in seconds, matching the on-chain `MINIMUM_VOTING_DURATION` (1 minute) */
+export const MINIMUM_VOTING_DURATION = BigInt(60);
 
-/** Minimum voting duration in days */
-export const MINIMUM_VOTING_DURATION_DAYS = 2;
+/** Minimum voting duration in days (1 minute expressed in days) */
+export const MINIMUM_VOTING_DURATION_DAYS = 1 / 24 / 60;
 
 /**
  * User-friendly voting settings input (using percentages and days)
@@ -24,7 +24,7 @@ export interface VotingSettingsInput {
   fastPathFlatThreshold: number;
   /** Minimum number of editors required to vote */
   quorum: number;
-  /** Voting duration in days (minimum 2 days) */
+  /** Voting duration in days (minimum 1 minute, matching the on-chain lower bound) */
   durationInDays: number;
 }
 

@@ -36,7 +36,11 @@ describe('daysToSeconds', () => {
   });
 
   it('should convert 2 days to 172800 seconds', () => {
-    expect(daysToSeconds(2)).toBe(MINIMUM_VOTING_DURATION);
+    expect(daysToSeconds(2)).toBe(BigInt(172800));
+  });
+
+  it('should expose the on-chain minimum duration (1 minute)', () => {
+    expect(MINIMUM_VOTING_DURATION).toBe(BigInt(60));
   });
 
   it('should handle fractional days', () => {
@@ -125,10 +129,15 @@ describe('validateVotingSettingsInput', () => {
   });
 
   it('should reject durationInDays below minimum', () => {
-    const settings = { ...validSettings, durationInDays: 1 };
+    const settings = { ...validSettings, durationInDays: MINIMUM_VOTING_DURATION_DAYS / 2 };
     expect(validateVotingSettingsInput(settings, 5)).toBe(
       `durationInDays must be at least ${MINIMUM_VOTING_DURATION_DAYS} days`,
     );
+  });
+
+  it('should accept durationInDays exactly at the minimum', () => {
+    const settings = { ...validSettings, durationInDays: MINIMUM_VOTING_DURATION_DAYS };
+    expect(validateVotingSettingsInput(settings, 5)).toBeNull();
   });
 });
 
@@ -170,11 +179,21 @@ describe('getCreateDaoSpaceCalldata', () => {
   it('should throw if duration is below minimum', () => {
     const args = {
       ...validArgs,
-      votingSettings: { ...validArgs.votingSettings, durationInDays: 1 },
+      votingSettings: { ...validArgs.votingSettings, durationInDays: MINIMUM_VOTING_DURATION_DAYS / 2 },
     };
     expect(() => getCreateDaoSpaceCalldata(args)).toThrow(
       `durationInDays must be at least ${MINIMUM_VOTING_DURATION_DAYS} days`,
     );
+  });
+
+  it('should accept duration exactly at the minimum', () => {
+    const args = {
+      ...validArgs,
+      votingSettings: { ...validArgs.votingSettings, durationInDays: MINIMUM_VOTING_DURATION_DAYS },
+    };
+    const calldata = getCreateDaoSpaceCalldata(args);
+    expect(calldata).toBeTypeOf('string');
+    expect(calldata.startsWith('0x')).toBe(true);
   });
 
   it('should accept empty initial members', () => {
